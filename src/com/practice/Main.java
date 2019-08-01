@@ -11,11 +11,43 @@ selection.
 
  */
 
+import com.lib.*;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 final class Main {
 
     public static void main(String[] args) {
         System.out.println("TOPP App - Configure Preview - Start");
 
-        
+        var installRoot = InstallRoot.getInstallRoot("SolidWorks Daemon");
+
+        var installDirectoryPath = Paths.get(installRoot);
+
+        if (!ToppFiles.validateDirectory(
+                "Install",
+                installDirectoryPath))
+            return;
+
+        var DBdaemonFileName = "toppAppDBdaemon.jar";
+
+        PathsList.DBdaemon = Paths.get(installRoot + DBdaemonFileName);
+
+        if (!Files.exists(PathsList.DBdaemon))
+            if (!BlobDirectory.validateLocalBlobDatabaseInstance(installDirectoryPath))
+                return;
+
+        var configFileName = "toppAppPreview.config";
+
+        PathsList.previewConfig = Paths.get(installRoot + configFileName);
+
+        if (ToppFiles.validateFile(configFileName, PathsList.previewConfig))
+            return;
+
+        if (ToppFiles.writeFile(configFileName, PathsList.previewConfig, Commands.PROGRAM_INIT))
+            return;
+
+        System.out.println("TOPP App - Configure Preview - Exit");
     }
 }
